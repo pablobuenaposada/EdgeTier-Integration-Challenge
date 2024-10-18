@@ -19,20 +19,63 @@ AGENT_ID = "efa505ac-d1b6-4b83-92f4-2f67ef03aff9"
 class TestMainStart:
     @patch("requests.get")
     @patch("requests.post")
-    def test_start(self, m_post, m_get):
-        m_get.return_value = MagicMock(
-            json=lambda: {
-                "events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID, "event_at": EVENT_AT}]
-            },
-            status_code=200,
-        )
+    def test_start_existent_agent(self, m_post, m_get):
+        m_get.side_effect = [
+            MagicMock(
+                json=lambda: {
+                    "events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID, "event_at": EVENT_AT}]
+                },
+                status_code=200,
+            ),
+            MagicMock(json=lambda: {"advisor_id": "foo"}, status_code=200),
+            MagicMock(json=lambda: {"name": "jhon", "email_address": "jhon@domain.com"}, status_code=200),
+            MagicMock(json=lambda: [{"agent_id": AGENT_ID}], status_code=200),
+        ]
+        m_post.return_value = MagicMock(json=lambda: {"chat_id": CHAT_ID}, status_code=201)
 
         main.main(START_AT, END_AT)
 
-        m_get.assert_called_once_with(f"{BIG_CHAT_API}/events", params={"start_at": START_AT, "end_at": END_AT})
-        m_post.assert_called_once_with(
-            f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID), "started_at": EVENT_AT}
-        )
+        assert m_get.call_args_list == [
+            call(f"{BIG_CHAT_API}/events", params={"start_at": START_AT, "end_at": END_AT}),
+            call(f"{BIG_CHAT_API}/conversations/{CONVERSATION_ID}"),
+            call(f"{BIG_CHAT_API}/advisors/foo"),
+            call(f"{OUR_API}/agents?email=jhon@domain.com"),
+        ]
+        assert m_post.call_args_list == [
+            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID), "started_at": EVENT_AT, "agent_id": AGENT_ID}),
+        ]
+
+    @patch("requests.get")
+    @patch("requests.post")
+    def test_start_non_existent_agent(self, m_post, m_get):
+        m_get.side_effect = [
+            MagicMock(
+                json=lambda: {
+                    "events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID, "event_at": EVENT_AT}]
+                },
+                status_code=200,
+            ),
+            MagicMock(json=lambda: {"advisor_id": "foo"}, status_code=200),
+            MagicMock(json=lambda: {"name": "jhon", "email_address": "jhon@domain.com"}, status_code=200),
+            MagicMock(json=lambda: [], status_code=200),
+        ]
+        m_post.side_effect = [
+            MagicMock(json=lambda: {"agent_id": AGENT_ID}, status_code=201),
+            MagicMock(json=lambda: {"chat_id": CHAT_ID}, status_code=201),
+        ]
+
+        main.main(START_AT, END_AT)
+
+        assert m_get.call_args_list == [
+            call(f"{BIG_CHAT_API}/events", params={"start_at": START_AT, "end_at": END_AT}),
+            call(f"{BIG_CHAT_API}/conversations/{CONVERSATION_ID}"),
+            call(f"{BIG_CHAT_API}/advisors/foo"),
+            call(f"{OUR_API}/agents?email=jhon@domain.com"),
+        ]
+        assert m_post.call_args_list == [
+            call(f"{OUR_API}/agents", json={"name": "jhon", "email": "jhon@domain.com"}),
+            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID), "started_at": EVENT_AT, "agent_id": AGENT_ID}),
+        ]
 
 
 class TestMainEnd:
@@ -193,7 +236,7 @@ class TestMainTransfer:
             MagicMock(json=lambda: {"name": "jhon", "email_address": "jhon@domain.com"}, status_code=200),
             MagicMock(json=lambda: [], status_code=200),
         ]
-        m_post.return_value = MagicMock(json=lambda: {"agent_id": AGENT_ID}, status_code=200)
+        m_post.return_value = MagicMock(json=lambda: {"agent_id": AGENT_ID}, status_code=201)
 
         main.main(START_AT, END_AT)
 
@@ -229,6 +272,9 @@ class TestMainPagination:
                 },
                 status_code=200,
             ),
+            MagicMock(json=lambda: {"advisor_id": "foo"}, status_code=200),
+            MagicMock(json=lambda: {"name": "jhon", "email_address": "jhon@domain.com"}, status_code=200),
+            MagicMock(json=lambda: [{"agent_id": AGENT_ID}], status_code=200),
             MagicMock(
                 json=lambda: {
                     "nextPageUrl": None,
@@ -238,15 +284,24 @@ class TestMainPagination:
                 },
                 status_code=200,
             ),
+            MagicMock(json=lambda: {"advisor_id": "foo"}, status_code=200),
+            MagicMock(json=lambda: {"name": "jhon", "email_address": "jhon@domain.com"}, status_code=200),
+            MagicMock(json=lambda: [{"agent_id": AGENT_ID}], status_code=200),
         ]
 
         main.main(START_AT, END_AT)
 
         assert m_get.call_args_list == [
             call(f"{BIG_CHAT_API}/events", params={"start_at": START_AT, "end_at": END_AT}),
+            call(f"{BIG_CHAT_API}/conversations/{CONVERSATION_ID}"),
+            call(f"{BIG_CHAT_API}/advisors/foo"),
+            call(f"{OUR_API}/agents?email=jhon@domain.com"),
             call("whatever"),
+            call(f"{BIG_CHAT_API}/conversations/{CONVERSATION_ID + 1}"),
+            call(f"{BIG_CHAT_API}/advisors/foo"),
+            call(f"{OUR_API}/agents?email=jhon@domain.com"),
         ]
         assert m_post.call_args_list == [
-            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID), "started_at": EVENT_AT}),
-            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID + 1), "started_at": EVENT_AT + 1}),
+            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID), "started_at": EVENT_AT, "agent_id": AGENT_ID}),
+            call(f"{OUR_API}/chats", json={"external_id": str(CONVERSATION_ID + 1), "started_at": EVENT_AT + 1, "agent_id": AGENT_ID}),
         ]

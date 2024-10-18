@@ -2,11 +2,15 @@ import requests
 
 from integration.constants import OUR_API
 from integration.events import constants
-from integration.events.utils import search_chat, search_or_create_agent
+from integration.events.utils import (search_advisor, search_chat,
+                                      search_or_create_agent)
 
 
 def _create_chat(external_id, event_at, logger):
-    response = requests.post(f"{OUR_API}/chats", json={"external_id": external_id, "started_at": event_at})
+    agent_id = search_or_create_agent(search_advisor(external_id), logger)
+    response = requests.post(
+        f"{OUR_API}/chats", json={"external_id": external_id, "started_at": event_at, "agent_id": agent_id}
+    )
     response.raise_for_status()
     logger.info(f"Created chat {response.json()['chat_id']}")
 
