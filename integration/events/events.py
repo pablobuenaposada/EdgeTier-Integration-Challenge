@@ -15,4 +15,4 @@ def create_chat(external_id, started_at, logger):
 def process_events(events, logger):
     for event in events:
         if event["event_name"] == EVENT_START:
-            create_chat(str(event["conversation_id"]), datetime.now().isoformat(), logger)
+            create_chat(str(event["conversation_id"]), event["event_at"], logger)
