@@ -4,7 +4,9 @@ import pytest
 
 from integration import main
 from integration.constants import BIG_CHAT_API, OUR_API
-from integration.events.constants import EVENT_END, EVENT_MESSAGE, EVENT_START, EVENT_TRANSFER
+from integration.events.constants import (EVENT_END, EVENT_MESSAGE,
+                                          EVENT_START, EVENT_TRANSFER)
+from integration.events.utils import chat_cache
 
 CONVERSATION_ID = 12345
 START_AT = "2024-10-18 00:00:00"
@@ -96,6 +98,7 @@ class TestMainEnd:
         ),
     )
     def test_end(self, m_patch, m_get, chat_retrieval_response):
+        chat_cache.clear()
         m_get.side_effect = [
             MagicMock(
                 json=lambda: {
@@ -130,6 +133,7 @@ class TestMainMessage:
         ),
     )
     def test_message(self, m_post, m_get, chat_retrieval_response):
+        chat_cache.clear()
         m_get.side_effect = [
             MagicMock(
                 json=lambda: {
@@ -174,6 +178,7 @@ class TestMainTransfer:
         ),
     )
     def test_transfer_existent_agent(self, m_patch, m_post, m_get, chat_retrieval_response):
+        chat_cache.clear()
         m_get.side_effect = [
             MagicMock(
                 json=lambda: {
@@ -224,6 +229,7 @@ class TestMainTransfer:
         ),
     )
     def test_transfer_non_existent_agent(self, m_patch, m_post, m_get, chat_retrieval_response):
+        chat_cache.clear()
         m_get.side_effect = [
             MagicMock(
                 json=lambda: {
