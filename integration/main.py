@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 BIG_CHAT_API = "http://localhost:8267"
 OUR_API = "http://localhost:8266"
 
-if __name__ == "__main__":
+def main():
     # Get events from BigChat.
     parameters = {"start_at": (datetime.now() - timedelta(seconds=10))}
     events = requests.get(f"{BIG_CHAT_API}/events", params=parameters)
@@ -25,3 +25,7 @@ if __name__ == "__main__":
             data = {"external_id": str(event["conversation_id"]), "started_at": datetime.now().isoformat()}
             chat = requests.post(f"{OUR_API}/chats", json=data)
             logger.info(f"Created chat {chat.json()['chat_id']}.")
+
+
+if __name__ == "__main__":
+    main()

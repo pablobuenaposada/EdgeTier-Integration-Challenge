@@ -14,7 +14,7 @@ At EdgeTier, we build and maintain lots of integrations with customer support so
 * Install SQLite. Mac already has this installed already most of the time.
 * `git clone` the repository.
 * Create a virtualenv.
-* `pip install -r requirements`.
+* `pip install -r requirements.txt`.
 
 ## Running
 
