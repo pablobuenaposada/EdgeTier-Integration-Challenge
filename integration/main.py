@@ -1,7 +1,7 @@
+import logging
 from datetime import datetime, timedelta
 
 import requests
-import logging
 
 from integration.constants import BIG_CHAT_API, DELTA_SECONDS
 from integration.events.events import process_events
