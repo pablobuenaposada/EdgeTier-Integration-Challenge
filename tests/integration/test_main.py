@@ -1,7 +1,8 @@
 from integration import main
 from unittest.mock import patch, MagicMock, ANY, call
 
-from integration.main import BIG_CHAT_API, OUR_API
+from integration.constants import BIG_CHAT_API, OUR_API
+from integration.events.constants import EVENT_START
 
 CONVERSATION_ID = 12345
 START_AT = "2024-10-18 00:00:00"
@@ -14,7 +15,7 @@ class TestMain:
     @patch("requests.post")
     def test_start(self, m_post, m_get):
         m_get.return_value = MagicMock(
-            json=lambda: {"events": [{"event_name": "START", "conversation_id": CONVERSATION_ID}]}, status_code=200
+            json=lambda: {"events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID}]}, status_code=200
         )
 
         main.main(START_AT, END_AT)
@@ -31,14 +32,14 @@ class TestMain:
             MagicMock(
                 json=lambda: {
                     "nextPageUrl": "whatever",
-                    "events": [{"event_name": "START", "conversation_id": CONVERSATION_ID}],
+                    "events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID}],
                 },
                 status_code=200,
             ),
             MagicMock(
                 json=lambda: {
                     "nextPageUrl": None,
-                    "events": [{"event_name": "START", "conversation_id": CONVERSATION_ID + 1}],
+                    "events": [{"event_name": EVENT_START, "conversation_id": CONVERSATION_ID + 1}],
                 },
                 status_code=200,
             ),
