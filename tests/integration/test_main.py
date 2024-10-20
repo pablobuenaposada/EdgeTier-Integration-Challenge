@@ -4,8 +4,7 @@ import pytest
 
 from integration import main
 from integration.constants import BIG_CHAT_API, OUR_API
-from integration.events.constants import (EVENT_END, EVENT_MESSAGE,
-                                          EVENT_START, EVENT_TRANSFER)
+from integration.events.constants import EVENT_END, EVENT_MESSAGE, EVENT_START, EVENT_TRANSFER
 from integration.events.utils import chat_cache
 
 CONVERSATION_ID = 12345

@@ -14,13 +14,13 @@ logger.setLevel(logging.INFO)
 
 
 def main(start_at, end_at):
-    logger.info(f"Retrieving BigChat from {start_at} to {end_at}")
+    logger.info(f"Retrieving BigChat events from {start_at} to {end_at}")
     response = requests.get(f"{BIG_CHAT_API}/events", params={"start_at": start_at, "end_at": end_at})
     response.raise_for_status()
     response_data = response.json()
     process_events(response_data["events"], logger)
 
-    # if more pages found we process also those
+    # if more pages are found we process also those
     next_page_url = response_data.get("nextPageUrl")
     while next_page_url:
         response = requests.get(next_page_url)

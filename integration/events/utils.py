@@ -41,12 +41,12 @@ def search_or_create_agent(advisor_id, logger):
         response = requests.post(f"{OUR_API}/agents", json={"name": name, "email": email})
         response.raise_for_status()
         agent_id = response.json()["agent_id"]
-        logger.info(f"Create user {agent_id}")
+        logger.info(f"\x1b[35mEXTRA\x1b[0m Create user {agent_id}")
         return agent_id
 
 
 def search_advisor(conversation_id):
-    """get the advisor id for given chat"""
+    """Get the advisor id for given chat"""
     response = requests.get(f"{BIG_CHAT_API}/conversations/{conversation_id}")
     response.raise_for_status()
     return response.json()["advisor_id"]

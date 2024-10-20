@@ -47,3 +47,23 @@ When the app is running, you can find the documentation here: http://127.0.0.1:8
 Create an integration between BigChat API and Our API. Write a script that calls BigChat's `/events` route every 10 seconds (to get the latest events in the last 10 seconds) that will create/edit chats and agents in OurAPI as needed. Feel free to edit anything inside `/integration`. Add as many files or whatever structure you want. We would recommend writing tests as well.
 
 Please do not edit anything inside `/big_chat` or `/our_api`, assume they are APIs that can't be changed.
+
+## Solution instructions
+Run api and chat
+
+```console
+make run_bigchat
+make run_ourapi
+```
+
+Run integration
+
+```console
+make run_integration
+```
+
+Run tests
+
+```console
+make tests
+```
