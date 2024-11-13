@@ -1,3 +1,5 @@
+$${\color{red}BE \space CAREFUL, \space THIS \space COMPANY \space DOES \space BAD \space PRACTICES \space IN \space ITS \space SELECTION \space PROCESS, \space LOWBALLING, \space BAD \space COMMUNICATION \space AND \space LIES, \space I \space DO \space NOT \space ADVISE \space YOU \space TO \space APPLY }$$
+
 # EdgeTier Integration Challenge
 
 **Note:** Please do not put your solution in a public repository (GitHub etc.). We are sending this to multiple candidates and do not want anyone to have an unfair advantage.
